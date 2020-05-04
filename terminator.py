@@ -1,11 +1,8 @@
-import sys
-import os
 import subprocess
 import time
-import argparse
+from sysman import SystemManager
 
-
-SHUTDOWN = 'shutdown /s /f /t 60'
+system_manager = SystemManager()
 
 
 def process_exists(pid):
@@ -18,13 +15,12 @@ def process_exists(pid):
 
 def shut_on_term(args):
     if args.pid is not None:
-        shut = False
+        shut = 0
         while process_exists(args.pid):
             if not shut:
                 print('[*] Bindend, waiting for terminating to shutdown.')
                 print('[*] Press CTRL+C to cancel this operation')
             shut = True
             time.sleep(10)
-
         if shut:
-            os.system(SHUTDOWN)
+            system_manager.shutdown()
