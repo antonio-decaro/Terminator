@@ -51,4 +51,4 @@ class _LinuxSystem(_System):
         os.system('shutdown -t 60')
 
     def process_exists(self, pid):
-        pass
+        raise NotImplementedError
