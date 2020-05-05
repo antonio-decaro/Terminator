@@ -20,14 +20,21 @@ def observe_process(action: Callable, mode, *events: Event) -> None:
     results = []
 
     with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-        for event in events:
-            ft = executor.submit(event)
-            fts.add(ft)
-        for ft in futures.as_completed(fts):
-            results.append(ft.result())
-            if mode is any and any(results):
-                stop_all()
-                executor.shutdown(False)
-                break
+        try:
+            logger.log('[*] Press CTRL+C to cancel this operation')
+            for event in events:
+                ft = executor.submit(event)
+                fts.add(ft)
+            for ft in futures.as_completed(fts):
+                results.append(ft.result())
+                if mode is any and any(results):
+                    stop_all()
+                    executor.shutdown(False)
+                    break
+        except KeyboardInterrupt:
+            logger.log('[!] Operation cancelled')
+            stop_all()
+            executor.shutdown()
+            exit(0)
     if any(results):
         action()
