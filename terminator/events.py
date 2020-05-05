@@ -8,6 +8,8 @@ system_manager = SystemManager()
 
 BUSY_WAIT_DURATION = 1
 
+stop = False
+
 
 class Event(abc.ABC):
     """
@@ -29,20 +31,19 @@ class OnTerminateEvent(Event):
         self._pid = pid
 
     def __call__(self, *args, **kwargs):
-        try:
-            found = False
-            while system_manager.process_exists(self._pid):
-                if not found:
-                    logger.log(f'[+] Process {self._pid} found. Waiting for process to terminate')
-                found = True
-                time.sleep(BUSY_WAIT_DURATION)
+        found = False
+        while system_manager.process_exists(self._pid) and not stop:
             if not found:
-                logger.log(f'[!] Process {self._pid} not found')
-            else:
-                logger.log(f'[-] Process {self._pid} terminated')
-            return found
-        except KeyboardInterrupt:
-            print('alfredo')
+                logger.log(f'[+] Process {self._pid} found. Waiting for process to terminate')
+            found = True
+            time.sleep(BUSY_WAIT_DURATION)
+        if stop:
+            return False
+        if not found:
+            logger.log(f'[!] Process {self._pid} not found')
+        else:
+            logger.log(f'[-] Process {self._pid} terminated')
+        return found
 
 
 class OnStartEvent(Event):
@@ -55,10 +56,17 @@ class OnStartEvent(Event):
 
     def __call__(self, *args, **kwargs):
         found = False
-        while not system_manager.process_exists(self._pid):
+        while not system_manager.process_exists(self._pid) and not stop:
             if not found:
                 logger.log(f'[*] Attempting to find process {self._pid}')
                 logger.log(f'[*] Press CTRL+C to cancel this operation')
             found = True
             time.sleep(BUSY_WAIT_DURATION)
+        if stop:
+            return False
         return found
+
+
+def stop_all():
+    global stop
+    stop = True

@@ -6,7 +6,7 @@ from terminator.utils.logger import Logger
 logger = Logger()
 system_manager = SystemManager()
 
-ACTIONS = {'SHUTDOWN': system_manager.shutdown, 'ALERT': (lambda: print('Terminated'))}
+ACTIONS = {'SHUTDOWN': system_manager.shutdown, 'ALERT': (lambda: print('!!! ALERT !!! ALERT !!! ALERT !!!'))}
 EVENTS = {'ON_TERMINATE': events.OnTerminateEvent, 'ON_START': events.OnStartEvent}
 MODE = ['ALL', 'ANY']
 

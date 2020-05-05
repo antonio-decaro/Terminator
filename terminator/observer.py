@@ -1,7 +1,6 @@
 import os
-import pebble
 from concurrent import futures
-from terminator.events import Event
+from terminator.events import Event, stop_all
 from typing import Callable
 from terminator.utils.logger import Logger
 
@@ -20,15 +19,15 @@ def observe_process(action: Callable, mode, *events: Event) -> None:
     fts = set()
     results = []
 
-    with pebble.ProcessPool(max_workers=os.cpu_count()) as pool:
+    with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         for event in events:
-            ft = pool.schedule(event)
+            ft = executor.submit(event)
             fts.add(ft)
         for ft in futures.as_completed(fts):
             results.append(ft.result())
             if mode is any and any(results):
-                pool.close()
-                for f in fts:
-                    f.cancel()
+                stop_all()
+                executor.shutdown(False)
                 break
-    action()
+    if any(results):
+        action()
