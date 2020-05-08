@@ -15,11 +15,13 @@ def main():
     args = helper.parse_args(ACTIONS.keys(), EVENTS.keys(), MODE)
     logger.enabled = args.verbose is not None
 
-    logger.log(f'[*] Looking for process: {args.pid}')
+    processes = args.pid if args.pid is not None else args.name
+
+    logger.log(f'[*] Looking for process: {processes}')
     logger.log(f'[*] Selected mode: {args.mode}')
 
     mode = any if args.mode == 'ANY' else all
-    event_list = [EVENTS[args.event](pid) for pid in args.pid]
+    event_list = [EVENTS[args.event](pid) for pid in processes]
     observe_process(ACTIONS[args.action], mode, *event_list)
 
 

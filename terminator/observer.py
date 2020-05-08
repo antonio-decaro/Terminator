@@ -7,6 +7,10 @@ from terminator.utils.logger import Logger
 logger = Logger()
 
 
+def worker(event):
+    return event()
+
+
 def observe_process(action: Callable, mode, *events: Event) -> None:
     """
     This function observes a given process through an event and when it fires an action is performed.
@@ -23,7 +27,7 @@ def observe_process(action: Callable, mode, *events: Event) -> None:
         try:
             logger.log('[*] Press CTRL+C to cancel this operation')
             for event in events:
-                ft = executor.submit(event)
+                ft = executor.submit(worker, event)
                 fts.add(ft)
             for ft in futures.as_completed(fts):
                 results.append(ft.result())
