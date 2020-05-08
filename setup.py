@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Terminator',
-    version='0.2.1',
+    version='0.3.1',
     packages=['terminator', 'terminator.utils'],
     url='https://github.com/antonio-decaro/Terminator',
     license='Apache License v2.0',
